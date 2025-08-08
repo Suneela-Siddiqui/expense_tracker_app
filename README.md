@@ -1,16 +1,70 @@
-# flutter_course_project
+# 💰 Expense Tracker App – Flutter
 
-A new Flutter project.
+A simple yet powerful Flutter app for tracking your daily expenses. Record transactions, view summaries, and stay on top of your budget — all in a clean, user-friendly interface.
 
-## Getting Started
+## 📱 Features
 
-This project is a starting point for a Flutter application.
+- Add, edit, and delete expense entries
+- Daily and total expense summary
+- Uses local storage (Hive / SharedPreferences)
+- Custom date and category filtering
+- Responsive design for all screen sizes
 
-A few resources to get you started if this is your first Flutter project:
+## 📁 Project Structure (example)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```
+lib/
+├── main.dart
+├── models/
+│   └── expense.dart
+├── screens/
+│   ├── home_screen.dart
+│   └── add_expense_screen.dart
+├── widgets/
+│   ├── expense_list.dart
+│   └── expense_tile.dart
+└── utils/
+    └── storage_manager.dart
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/expense_tracker_flutter.git
+cd expense_tracker_flutter
+```
+
+### 2. Install dependencies
+
+```bash
+flutter pub get
+```
+
+### 3. Run the app
+
+```bash
+flutter run
+```
+
+Make sure you have an emulator running or a device connected.
+
+## 🛠️ Tech Stack
+
+- Flutter & Dart
+- Local storage: Hive / SharedPreferences
+- Provider or setState (for state management)
+- Custom Widgets & Layouts
+
+## 🤝 Contributing
+
+Pull requests are welcome. Feel free to fork the repository and improve it!
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## 💡 Credits
+
+Built with ❤️ in Flutter to learn budgeting apps and local storage handling.
