@@ -1,39 +1,42 @@
-# 💰 Expense Tracker App – Flutter
+# 💸 Expense Tracker App – Flutter
 
-A simple yet powerful Flutter app for tracking your daily expenses. Record transactions, view summaries, and stay on top of your budget — all in a clean, user-friendly interface.
+A beginner-friendly Flutter app to track expenses with input fields and bar chart visualization. It’s designed for learning state management, custom widgets, and UI layout in Flutter — no database or persistent storage included (yet!).
 
 ## 📱 Features
 
-- Add, edit, and delete expense entries
-- Daily and total expense summary
-- Uses local storage (Hive / SharedPreferences)
-- Custom date and category filtering
-- Responsive design for all screen sizes
+- Add new expense items with title, amount, date, and category
+- Expenses displayed in a list format
+- Weekly chart to visualize spending patterns
+- Custom UI components and clean layout
+- No backend or local database yet (purely in-memory)
 
-## 📁 Project Structure (example)
+## 📁 Folder Structure
 
 ```
 lib/
 ├── main.dart
 ├── models/
 │   └── expense.dart
-├── screens/
-│   ├── home_screen.dart
-│   └── add_expense_screen.dart
 ├── widgets/
-│   ├── expense_list.dart
-│   └── expense_tile.dart
-└── utils/
-    └── storage_manager.dart
+│   ├── chart/
+│   │   ├── chart.dart
+│   │   └── chart_bar.dart
+│   ├── expenses_list/
+│   │   ├── expenses_list.dart
+│   │   └── expense_item.dart
+│   ├── new_expense.dart
+│   └── expenses.dart
 ```
 
 ## 🚀 Getting Started
 
+Make sure you have Flutter installed. Then:
+
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/expense_tracker_flutter.git
-cd expense_tracker_flutter
+git clone https://github.com/your-username/expense_tracker_app.git
+cd expense_tracker_app
 ```
 
 ### 2. Install dependencies
@@ -48,23 +51,19 @@ flutter pub get
 flutter run
 ```
 
-Make sure you have an emulator running or a device connected.
+Ensure a device or emulator is connected.
 
 ## 🛠️ Tech Stack
 
 - Flutter & Dart
-- Local storage: Hive / SharedPreferences
-- Provider or setState (for state management)
-- Custom Widgets & Layouts
-
-## 🤝 Contributing
-
-Pull requests are welcome. Feel free to fork the repository and improve it!
+- Stateless and Stateful widgets
+- Custom components
+- In-memory data handling (no persistent storage)
 
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
 
-## 💡 Credits
+## 🙌 Credits
 
-Built with ❤️ in Flutter to learn budgeting apps and local storage handling.
+Built for learning Flutter UI basics and stateful widget patterns.
