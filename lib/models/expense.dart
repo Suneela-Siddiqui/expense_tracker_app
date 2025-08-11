@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 
+import 'expense.dart';
 final formatter = DateFormat.yMd();
-
 const uuid = Uuid();
 
 enum Category { food, travel, leisure, work }
@@ -29,10 +29,29 @@ class Expense {
   final DateTime date;
   final Category category;
 
-  String get formattedDate {
-    return formatter.format(date);
-  }
+  String get formattedDate => formatter.format(date);
+
+  // ✅ Convert to JSON for SharedPreferences
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'amount': amount,
+    'date': date.toIso8601String(),
+    'category': category.name,
+  };
+
+  // ✅ Restore from JSON
+  factory Expense.fromJson(Map<String, dynamic> json) => Expense(
+    title: json['title'],
+    amount: json['amount'],
+    date: DateTime.parse(json['date']),
+    category: Category.values.byName(json['category']),
+  );
+
+
+
 }
+
 
 class ExpenseBucket {
   const ExpenseBucket({
@@ -50,11 +69,9 @@ class ExpenseBucket {
 
   double get totalExpenses {
     double sum = 0;
-
     for (final expense in expenses) {
-      sum += expense.amount; // sum = sum + expense.amount
+      sum += expense.amount;
     }
-
     return sum;
   }
 }
