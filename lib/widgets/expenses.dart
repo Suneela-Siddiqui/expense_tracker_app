@@ -1,73 +1,73 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_course_project/models/expense.dart';
 import 'package:flutter_course_project/widgets/chart/chart.dart';
 import 'package:flutter_course_project/widgets/expenses_list/expenses_list.dart';
 import 'package:flutter_course_project/widgets/new_expense.dart';
 
+
 class Expenses extends StatefulWidget {
   const Expenses({super.key});
 
   @override
-  State<Expenses> createState() => _ExpensesState();
+  State<Expenses> createState() {
+    return _ExpensesState();
+  }
 }
 
 class _ExpensesState extends State<Expenses> {
-  List<Expense> _registeredExpenses = [];
+  final List<Expense> _registeredExpenses = [
+    Expense(
+      title: 'Flutter Course',
+      amount: 19.99,
+      date: DateTime.now(),
+      category: Category.work,
+    ),
+    Expense(
+      title: 'Cinema',
+      amount: 15.69,
+      date: DateTime.now(),
+      category: Category.leisure,
+    ),
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    _loadExpenses();
-  }
-
-  Future<void> _loadExpenses() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getStringList('expenses') ?? [];
-    final loadedExpenses = saved
-        .map((e) => Expense.fromJson(jsonDecode(e)))
-        .toList();
-
-    setState(() {
-      _registeredExpenses = loadedExpenses;
-    });
-  }
-
-  Future<void> _saveExpenses() async {
-    final prefs = await SharedPreferences.getInstance();
-    final encoded =
-    _registeredExpenses.map((e) => jsonEncode(e.toJson())).toList();
-    await prefs.setStringList('expenses', encoded);
+  void _openAddExpenseOverlay() {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (ctx) => NewExpense(onAddExpense: _addExpense),
+    );
   }
 
   void _addExpense(Expense expense) {
     setState(() {
       _registeredExpenses.add(expense);
     });
-    _saveExpenses();
   }
 
   void _removeExpense(Expense expense) {
+    final expenseIndex = _registeredExpenses.indexOf(expense);
     setState(() {
       _registeredExpenses.remove(expense);
     });
-    _saveExpenses();
-  }
-
-  void _openAddExpenseOverlay() {
-    showModalBottomSheet(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (ctx) => NewExpense(onAddExpense: _addExpense),
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 3),
+        content: const Text('Expense deleted.'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              _registeredExpenses.insert(expenseIndex, expense);
+            });
+          },
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
     Widget mainContent = const Center(
       child: Text('No expenses found. Start adding some!'),
     );
@@ -81,7 +81,7 @@ class _ExpensesState extends State<Expenses> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Expense Tracker'),
+        title: const Text('Flutter ExpenseTracker'),
         actions: [
           IconButton(
             onPressed: _openAddExpenseOverlay,
@@ -89,20 +89,14 @@ class _ExpensesState extends State<Expenses> {
           ),
         ],
       ),
-      body: width < 600
-          ? Column(
+      body: Column(
         children: [
           Chart(expenses: _registeredExpenses),
-          Expanded(child: mainContent),
-        ],
-      )
-          : Row(
-        children: [
-          Expanded(child: Chart(expenses: _registeredExpenses)),
-          Expanded(child: mainContent),
+          Expanded(
+            child: mainContent,
+          ),
         ],
       ),
     );
   }
 }
-
