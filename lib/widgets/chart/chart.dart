@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_course_project/models/expense.dart';
 import 'package:flutter_course_project/widgets/chart/chart_bar.dart';
 
+
 class Chart extends StatelessWidget {
   const Chart({super.key, required this.expenses});
 
@@ -44,8 +45,8 @@ class Chart extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).colorScheme.primary.withOpacity(0.3),
-            Theme.of(context).colorScheme.primary.withOpacity(0.0)
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.0),
           ],
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
@@ -78,9 +79,7 @@ class Chart extends StatelessWidget {
                     color: isDarkMode
                         ? Theme.of(context).colorScheme.secondary
                         : Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withOpacity(0.7),
+                        .colorScheme.primary.withValues(alpha: 0.7),
                   ),
                 ),
               ),
