@@ -4,6 +4,8 @@ import 'package:flutter_course_project/core/theme/app_theme.dart';
 import 'package:flutter_course_project/features/dashboard/dashboard_screen.dart';
 import 'package:flutter_course_project/features/analytics/analytics_screen.dart';
 import 'package:flutter_course_project/features/notifications/notifications_screen.dart';
+import 'package:flutter_course_project/features/expenses/expenses_screen.dart';
+
 
 void main() {
   runApp(const ProviderScope(child: SpendWiseApp()));
@@ -23,6 +25,8 @@ class SpendWiseApp extends StatelessWidget {
       routes: {
         AnalyticsScreen.routeName: (_) => const AnalyticsScreen(),
         NotificationsScreen.routeName: (_) => const NotificationsScreen(),
+        ExpensesScreen.routeName: (_) => const ExpensesScreen(),
+
       },
     );
   }

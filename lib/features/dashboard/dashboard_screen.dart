@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_course_project/features/expenses/expenses_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_course_project/core/state/app_riverpod_state.dart';
 import 'package:flutter_course_project/core/theme/ui_tokens.dart';
@@ -85,7 +86,10 @@ class DashboardScreen extends ConsumerWidget {
               return NewExpenseBottomSheet(
                 onAddExpense: (Expense e) {
                   notifier.addExpense(e);
-                  notifier.addNotification("Added: ${e.title} • ${_money(e.amount)}");
+                  notifier.addNotification(
+                    "Added: ${e.title} • ${_money(e.amount, currencyCode: appState.currencyCode)}",
+                  );
+
                 },
               );
             },
@@ -115,7 +119,7 @@ class DashboardScreen extends ConsumerWidget {
                 Expanded(
                   child: _SummaryCard(
                     title: "Remaining",
-                    value: _money(remaining),
+                    value: _money(remaining, currencyCode: appState.currencyCode),
                     icon: Icons.savings_rounded,
                     tint: cs.tertiaryContainer,
                   ),
@@ -124,7 +128,7 @@ class DashboardScreen extends ConsumerWidget {
                 Expanded(
                   child: _SummaryCard(
                     title: "This month",
-                    value: _money(totalSpent),
+                    value: _money(totalSpent, currencyCode: appState.currencyCode),
                     icon: Icons.payments_rounded,
                     tint: cs.primaryContainer,
                   ),
@@ -149,7 +153,7 @@ class DashboardScreen extends ConsumerWidget {
           Padding(
             padding: Ui.page,
             child: _BreakdownCard(
-              total: _money(totalSpent),
+              total: _money(totalSpent, currencyCode: appState.currencyCode),
               topTags: tags.isEmpty ? const ["No data yet"] : tags,
             ),
           ),
@@ -160,11 +164,8 @@ class DashboardScreen extends ConsumerWidget {
               title: "Recent transactions",
               subtitle: "Latest activity",
               action: "See all",
-              onActionTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Expenses screen navigation next ✅")),
-                );
-              },
+              onActionTap: () => Navigator.pushNamed(context, ExpensesScreen.routeName),
+
             ),
           ),
           const SizedBox(height: Ui.s8),
@@ -183,7 +184,7 @@ class DashboardScreen extends ConsumerWidget {
                 return _TransactionTile(
                   title: e.title,
                   subtitle: "${_categoryName(e)} • ${_niceDate(e.date)}",
-                  amount: "- ${_money(e.amount)}",
+                  amount: "- ${_money(e.amount, currencyCode: appState.currencyCode)}",
                   icon: _categoryIcon(e),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -250,7 +251,7 @@ class _SearchResults extends ConsumerWidget {
         return ListTile(
           title: Text(e.title),
           subtitle: Text("${_categoryName(e)} • ${_niceDate(e.date)}"),
-          trailing: Text(_money(e.amount)),
+          trailing: Text(_money(e.amount, currencyCode: appState.currencyCode)),
         );
       },
     );
@@ -684,7 +685,7 @@ double _sum(List<Expense> expenses) {
   return total;
 }
 
-String _money(double amount) {
+String _money(double amount, {required String currencyCode}) {
   final rounded = amount.round().toString();
   final buf = StringBuffer();
   for (int i = 0; i < rounded.length; i++) {
@@ -692,8 +693,9 @@ String _money(double amount) {
     buf.write(rounded[i]);
     if (idxFromEnd > 1 && idxFromEnd % 3 == 1) buf.write(',');
   }
-  return "PKR ${buf.toString()}";
+  return "$currencyCode ${buf.toString()}";
 }
+
 
 String _niceDate(DateTime d) {
   final now = DateTime.now();
