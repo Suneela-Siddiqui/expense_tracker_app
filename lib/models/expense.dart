@@ -16,6 +16,7 @@ const categoryIcons = {
 
 class Expense {
   Expense({
+    String? id,
     required this.title,
     required this.amount,
     required this.date,
@@ -30,7 +31,6 @@ class Expense {
 
   String get formattedDate => formatter.format(date);
 
-  // ✅ Convert to JSON for SharedPreferences
   Map<String, dynamic> toJson() => {
     'id': id,
     'title': title,
@@ -39,18 +39,14 @@ class Expense {
     'category': category.name,
   };
 
-  // ✅ Restore from JSON
   factory Expense.fromJson(Map<String, dynamic> json) => Expense(
+    id: json['id'] as String?,
     title: json['title'],
     amount: json['amount'],
     date: DateTime.parse(json['date']),
     category: Category.values.byName(json['category']),
   );
-
-
-
 }
-
 
 class ExpenseBucket {
   const ExpenseBucket({

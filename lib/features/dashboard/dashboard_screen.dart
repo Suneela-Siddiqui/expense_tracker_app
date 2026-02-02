@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_course_project/core/state/app_scope.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_course_project/core/state/app_riverpod_state.dart';
 import 'package:flutter_course_project/core/theme/ui_tokens.dart';
 import 'package:flutter_course_project/features/analytics/analytics_screen.dart';
 import 'package:flutter_course_project/features/expenses/widgets/new_expense_bottom_screen.dart';
 import 'package:flutter_course_project/features/notifications/notifications_screen.dart';
 import 'package:flutter_course_project/models/expense.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   static const double _monthlyBudget = 70000;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context);
     final cs = t.colorScheme;
 
-    final app = AppScope.of(context);
-    final expenses = app.expenses;
+    final appState = ref.watch(appStateProvider);
+    final notifier = ref.read(appStateProvider.notifier);
+
+    final expenses = appState.expenses;
 
     final totalSpent = _sum(expenses);
-  final double remaining =
-    (_monthlyBudget - totalSpent).clamp(0.0, double.infinity).toDouble();
-
+    final double remaining =
+        (_monthlyBudget - totalSpent).clamp(0.0, double.infinity).toDouble();
 
     final recent = expenses.take(3).toList();
     final tags = _topCategoryTags(expenses, take: 3);
@@ -54,18 +56,23 @@ class DashboardScreen extends StatelessWidget {
           _IconPillButton(
             icon: Icons.search_rounded,
             onTap: () {
-              showSearch(context: context, delegate: ExpenseSearchDelegate());
+              showSearch(
+                context: context,
+                delegate: ExpenseSearchDelegate(),
+              );
             },
           ),
           const SizedBox(width: Ui.s8),
           _BellWithBadge(
-            unread: app.unreadCount,
-            onTap: () => Navigator.pushNamed(context, NotificationsScreen.routeName),
+            unread: appState.unreadCount,
+            onTap: () => Navigator.pushNamed(
+              context,
+              NotificationsScreen.routeName,
+            ),
           ),
           const SizedBox(width: Ui.s16),
         ],
       ),
-
       floatingActionButton: _PrimaryFab(
         label: "Add expense",
         icon: Icons.add_rounded,
@@ -77,20 +84,18 @@ class DashboardScreen extends StatelessWidget {
             builder: (_) {
               return NewExpenseBottomSheet(
                 onAddExpense: (Expense e) {
-                  app.addExpense(e);
-                  app.addNotification("Added: ${e.title} • ${_money(e.amount)}");
+                  notifier.addExpense(e);
+                  notifier.addNotification("Added: ${e.title} • ${_money(e.amount)}");
                 },
               );
             },
           );
         },
       ),
-
       body: ListView(
         padding: const EdgeInsets.only(bottom: 120),
         children: [
           const SizedBox(height: Ui.s8),
-
           Padding(
             padding: Ui.page,
             child: _MonthHeader(
@@ -102,9 +107,7 @@ class DashboardScreen extends StatelessWidget {
               },
             ),
           ),
-
           const SizedBox(height: Ui.s12),
-
           Padding(
             padding: Ui.page,
             child: Row(
@@ -129,21 +132,20 @@ class DashboardScreen extends StatelessWidget {
               ],
             ),
           ),
-
           const SizedBox(height: Ui.s16),
-
           Padding(
             padding: Ui.page,
             child: _SectionHeader(
               title: "Spending breakdown",
               subtitle: "This month overview",
               action: "Details",
-              onActionTap: () => Navigator.pushNamed(context, AnalyticsScreen.routeName),
+              onActionTap: () => Navigator.pushNamed(
+                context,
+                AnalyticsScreen.routeName,
+              ),
             ),
           ),
-
           const SizedBox(height: Ui.s12),
-
           Padding(
             padding: Ui.page,
             child: _BreakdownCard(
@@ -151,9 +153,7 @@ class DashboardScreen extends StatelessWidget {
               topTags: tags.isEmpty ? const ["No data yet"] : tags,
             ),
           ),
-
           const SizedBox(height: Ui.s20),
-
           Padding(
             padding: Ui.page,
             child: _SectionHeader(
@@ -167,9 +167,7 @@ class DashboardScreen extends StatelessWidget {
               },
             ),
           ),
-
           const SizedBox(height: Ui.s8),
-
           if (recent.isEmpty)
             Padding(
               padding: Ui.page,
@@ -195,7 +193,6 @@ class DashboardScreen extends StatelessWidget {
                 );
               }).toList(),
             ),
-
           const SizedBox(height: Ui.s24),
         ],
       ),
@@ -216,8 +213,10 @@ class ExpenseSearchDelegate extends SearchDelegate {
       ];
 
   @override
-  Widget? buildLeading(BuildContext context) =>
-      IconButton(onPressed: () => close(context, null), icon: const Icon(Icons.arrow_back));
+  Widget? buildLeading(BuildContext context) => IconButton(
+        onPressed: () => close(context, null),
+        icon: const Icon(Icons.arrow_back),
+      );
 
   @override
   Widget buildResults(BuildContext context) => _SearchResults(query: query);
@@ -226,18 +225,20 @@ class ExpenseSearchDelegate extends SearchDelegate {
   Widget buildSuggestions(BuildContext context) => _SearchResults(query: query);
 }
 
-class _SearchResults extends StatelessWidget {
+class _SearchResults extends ConsumerWidget {
   final String query;
   const _SearchResults({required this.query});
 
   @override
-  Widget build(BuildContext context) {
-    final app = AppScope.of(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appState = ref.watch(appStateProvider);
+    final expenses = appState.expenses;
+
     final q = query.trim().toLowerCase();
 
     final filtered = q.isEmpty
-        ? app.expenses
-        : app.expenses.where((e) => e.title.toLowerCase().contains(q)).toList();
+        ? expenses
+        : expenses.where((e) => e.title.toLowerCase().contains(q)).toList();
 
     if (filtered.isEmpty) return const Center(child: Text("No results"));
 
@@ -467,8 +468,6 @@ class _SummaryCard extends StatelessWidget {
               children: [
                 Text(title, style: t.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                 const SizedBox(height: 4),
-
-                // ✅ no more "21,..."
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,

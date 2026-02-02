@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_course_project/core/state/app_scope.dart';
-import 'package:flutter_course_project/core/state/app_state.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_course_project/core/theme/app_theme.dart';
 import 'package:flutter_course_project/features/dashboard/dashboard_screen.dart';
 import 'package:flutter_course_project/features/analytics/analytics_screen.dart';
 import 'package:flutter_course_project/features/notifications/notifications_screen.dart';
 
 void main() {
-  runApp(
-    AppScope(
-      notifier: AppState(),
-      child: const SpendWiseApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: SpendWiseApp()));
 }
 
 class SpendWiseApp extends StatelessWidget {
