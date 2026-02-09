@@ -1,42 +1,77 @@
-# 💸 Expense Tracker App – Flutter
+# Expense Tracker App – Flutter (Riverpod Architecture)
 
-A beginner-friendly Flutter app to track expenses with input fields and bar chart visualization. It’s designed for learning state management, custom widgets, and UI layout in Flutter — no database or persistent storage included (yet!).
+A cleanly structured Flutter Expense Tracker application built using Riverpod for state management and a feature-first architecture. This project focuses on scalable app structure, separation of concerns, and modern Flutter best practices, making it suitable both as a learning project and as a portfolio-ready codebase.
 
-## 📱 Features
+## Features
 
-- Add new expense items with title, amount, date, and category
-- Expenses displayed in a list format
-- Weekly chart to visualize spending patterns
-- Custom UI components and clean layout
-- No backend or local database yet (purely in-memory)
+- Add and manage expense records
+- Expenses sorted by date (newest first)
+- Category-based expense modeling
+- Analytics screen for spending insights
+- Custom search using SearchDelegate
+- Notifications screen architecture (extensible)
+- Centralized state management with Riverpod
+- Persistent preferences via storage repository
+- Light & Dark theme support
+- Reusable UI tokens and theming system
 
-## 📁 Folder Structure
+## Architecture
+
+- Feature-based folder structure
+- Riverpod for global and scoped state management
+- Repository pattern for storage abstraction
+- Centralized theming and design tokens
+- Clear separation of UI, state, and business logic
+
+## Folder Structure
 
 ```
 lib/
 ├── main.dart
-├── models/
-│   └── expense.dart
-├── widgets/
-│   ├── chart/
-│   │   ├── chart.dart
-│   │   └── chart_bar.dart
-│   ├── expenses_list/
-│   │   ├── expenses_list.dart
-│   │   └── expense_item.dart
-│   ├── new_expense.dart
-│   └── expenses.dart
+│
+├── core/
+│   ├── money/
+│   │   └── currency.dart
+│   ├── state/
+│   │   ├── app_state.dart
+│   │   ├── app_scope.dart
+│   │   └── app_riverpod_state.dart
+│   ├── storage/
+│   │   └── expense_prefs_repository.dart
+│   ├── theme/
+│   │   ├── app_colors.dart
+│   │   ├── app_theme.dart
+│   │   └── ui_tokens.dart
+│   └── widgets/
+│
+├── features/
+│   ├── analytics/
+│   │   └── analytics_screen.dart
+│   ├── dashboard/
+│   │   ├── dashboard_screen.dart
+│   │   └── widgets/
+│   ├── expenses/
+│   │   ├── expenses_screen.dart
+│   │   └── widgets/
+│   ├── notifications/
+│   │   └── notifications_screen.dart
+│   └── search/
+│       └── expense_search_delegate.dart
+│
+└── models/
+    ├── expense.dart
+    └── app_notification.dart
+
 ```
 
-## 🚀 Getting Started
-
-Make sure you have Flutter installed. Then:
+## Getting Started
+Clone the repository
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/expense_tracker_app.git
-cd expense_tracker_app
+git clone https://github.com/your-username/expense-tracker-flutter.git
+cd expense-tracker-flutter
 ```
 
 ### 2. Install dependencies
@@ -53,17 +88,18 @@ flutter run
 
 Ensure a device or emulator is connected.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - Flutter & Dart
-- Stateless and Stateful widgets
-- Custom components
-- In-memory data handling (no persistent storage)
+- Riverpod
+- Material 3
+- Feature-first architecture
+- Repository pattern
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).
 
-## 🙌 Credits
+## Credits
 
-Built for learning Flutter UI basics and stateful widget patterns.
+Built as part of a Flutter learning journey with a strong focus on clean architecture, scalability, and maintainability.
