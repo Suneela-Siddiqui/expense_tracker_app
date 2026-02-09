@@ -111,7 +111,7 @@
     },
     {
       "name": "flutter_riverpod",
-      "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/flutter_riverpod-3.2.0",
+      "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/flutter_riverpod-3.2.1",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -126,7 +126,6 @@
       "rootUri": "file:///Users/macbook/Development/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
       "languageVersion": "3.8"
-<<<<<<< Updated upstream
     },
     {
       "name": "frontend_server_client",
@@ -151,8 +150,6 @@
       "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/http_parser-4.1.2",
       "packageUri": "lib/",
       "languageVersion": "3.4"
-=======
->>>>>>> Stashed changes
     },
     {
       "name": "intl",
@@ -217,7 +214,6 @@
     {
       "name": "meta",
       "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/meta-1.17.0",
-<<<<<<< Updated upstream
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
@@ -230,10 +226,8 @@
     {
       "name": "node_preamble",
       "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/node_preamble-2.0.2",
-=======
->>>>>>> Stashed changes
       "packageUri": "lib/",
-      "languageVersion": "3.5"
+      "languageVersion": "2.12"
     },
     {
       "name": "package_config",
@@ -291,7 +285,7 @@
     },
     {
       "name": "riverpod",
-      "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/riverpod-3.2.0",
+      "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/riverpod-3.2.1",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -303,7 +297,7 @@
     },
     {
       "name": "shared_preferences_android",
-      "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.18",
+      "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.20",
       "packageUri": "lib/",
       "languageVersion": "3.9"
     },
@@ -366,7 +360,6 @@
       "rootUri": "file:///Users/macbook/Development/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
       "languageVersion": "3.8"
-<<<<<<< Updated upstream
     },
     {
       "name": "source_map_stack_trace",
@@ -379,12 +372,10 @@
       "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/source_maps-0.10.13",
       "packageUri": "lib/",
       "languageVersion": "3.3"
-=======
->>>>>>> Stashed changes
     },
     {
       "name": "source_span",
-      "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/source_span-1.10.1",
+      "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/source_span-1.10.2",
       "packageUri": "lib/",
       "languageVersion": "3.1"
     },
@@ -427,15 +418,12 @@
     {
       "name": "test_api",
       "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/test_api-0.7.7",
-<<<<<<< Updated upstream
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
     {
       "name": "test_core",
       "rootUri": "file:///Users/macbook/.pub-cache/hosted/pub.dev/test_core-0.6.12",
-=======
->>>>>>> Stashed changes
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
