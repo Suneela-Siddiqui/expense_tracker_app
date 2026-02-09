@@ -23,6 +23,21 @@ A cleanly structured Flutter Expense Tracker application built using Riverpod fo
 - Centralized theming and design tokens
 - Clear separation of UI, state, and business logic
 
+## 📸 Screenshots
+
+### Dashboard
+<img src="screenshots/dashboard.png" width="300" />
+
+### Expenses
+<img src="screenshots/expenses.png" width="300" />
+
+### Analytics
+<img src="screenshots/notifications.png" width="300" />
+
+### Search
+<img src="screenshots/search.png" width="300" />
+
+
 ## Folder Structure
 
 ```
