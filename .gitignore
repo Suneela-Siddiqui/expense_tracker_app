@@ -1,5 +1,8 @@
-build/
+# Flutter / Dart tooling
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+build/
+
+# Optional for apps (recommended)
 pubspec.lock
