@@ -21,14 +21,29 @@ class DashboardScreen extends ConsumerWidget {
     final appState = ref.watch(appStateProvider);
     final notifier = ref.read(appStateProvider.notifier);
 
-    final expenses = appState.expenses;
+    final allExpenses = appState.expenses;
 
-    final totalSpent = _sum(expenses);
+    // newest first for dashboard preview list
+    final sorted = [...allExpenses]..sort((a, b) => b.date.compareTo(a.date));
+    final recent = sorted.take(3).toList();
+
+    // ✅ breakdown + totals should match "This month overview"
+    final now = DateTime.now();
+    final monthExpenses = allExpenses
+        .where((e) => e.date.year == now.year && e.date.month == now.month)
+        .toList();
+
+    final totalSpentThisMonth = _sum(monthExpenses);
     final double remaining =
-        (_monthlyBudget - totalSpent).clamp(0.0, double.infinity).toDouble();
+        (_monthlyBudget - totalSpentThisMonth).clamp(0.0, double.infinity).toDouble();
 
-    final recent = expenses.take(3).toList();
-    final tags = _topCategoryTags(expenses, take: 3);
+    // optional quick context chips
+    final todaySpent = _sum(_filterDay(allExpenses, DateTime.now()));
+    final yesterdaySpent =
+        _sum(_filterDay(allExpenses, DateTime.now().subtract(const Duration(days: 1))));
+
+    final tags = _topCategoryTags(monthExpenses, take: 3);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -128,7 +143,7 @@ class DashboardScreen extends ConsumerWidget {
                 Expanded(
                   child: _SummaryCard(
                     title: "This month",
-                    value: _money(totalSpent, currencyCode: appState.currencyCode),
+                    value: _money(totalSpentThisMonth, currencyCode: appState.currencyCode),
                     icon: Icons.payments_rounded,
                     tint: cs.primaryContainer,
                   ),
@@ -153,9 +168,11 @@ class DashboardScreen extends ConsumerWidget {
           Padding(
             padding: Ui.page,
             child: _BreakdownCard(
-              total: _money(totalSpent, currencyCode: appState.currencyCode),
-              topTags: tags.isEmpty ? const ["No data yet"] : tags,
-            ),
+            total: _money(totalSpentThisMonth, currencyCode: appState.currencyCode),
+            today: _money(todaySpent, currencyCode: appState.currencyCode),
+            yesterday: _money(yesterdaySpent, currencyCode: appState.currencyCode),
+            topTags: tags.isEmpty ? const ["No data this month"] : tags,
+          ),
           ),
           const SizedBox(height: Ui.s20),
           Padding(
@@ -491,9 +508,16 @@ class _SummaryCard extends StatelessWidget {
 
 class _BreakdownCard extends StatelessWidget {
   final String total;
+  final String today;
+  final String yesterday;
   final List<String> topTags;
 
-  const _BreakdownCard({required this.total, required this.topTags});
+  const _BreakdownCard({
+    required this.total,
+    required this.today,
+    required this.yesterday,
+    required this.topTags,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -501,7 +525,7 @@ class _BreakdownCard extends StatelessWidget {
     final cs = t.colorScheme;
 
     return Container(
-      height: 200,
+      height: 220,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Ui.r28),
         border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45), width: 1),
@@ -535,6 +559,15 @@ class _BreakdownCard extends StatelessWidget {
                 color: cs.onPrimaryContainer,
               ),
             ),
+            const SizedBox(height: Ui.s10),
+            Wrap(
+              spacing: Ui.s8,
+              runSpacing: Ui.s8,
+              children: [
+                _MiniTag(text: "Today • $today"),
+                _MiniTag(text: "Yesterday • $yesterday"),
+              ],
+            ),
             const Spacer(),
             Wrap(
               spacing: Ui.s8,
@@ -547,6 +580,7 @@ class _BreakdownCard extends StatelessWidget {
     );
   }
 }
+
 
 class _MiniTag extends StatelessWidget {
   final String text;
@@ -683,6 +717,14 @@ double _sum(List<Expense> expenses) {
   double total = 0;
   for (final e in expenses) total += e.amount;
   return total;
+}
+
+List<Expense> _filterDay(List<Expense> expenses, DateTime day) {
+  final d = DateTime(day.year, day.month, day.day);
+  return expenses.where((e) {
+    final ed = DateTime(e.date.year, e.date.month, e.date.day);
+    return ed == d;
+  }).toList();
 }
 
 String _money(double amount, {required String currencyCode}) {
