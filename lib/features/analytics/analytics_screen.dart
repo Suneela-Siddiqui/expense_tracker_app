@@ -95,16 +95,21 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                   const SizedBox(height: Ui.s16),
                 ],
 
+                if (daily.isNotEmpty) ...[
+                  Text(
+                    "Daily spend",
+                    style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: Ui.s10),
+                  _SpendBarChart(daily, currencyCode: currencyCode),
+                  const SizedBox(height: Ui.s16),
+                ],
+
                 Text(
                   "By category",
                   style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
                 ),
-                const SizedBox(height: Ui.s10),
-                if (daily.isNotEmpty) ...[
-                  const SizedBox(height: Ui.s16),
-                  _SpendBarChart(daily),
-                  const SizedBox(height: Ui.s16),
-                ],
+                
 
                 if (byCategory.isNotEmpty) ...[
                   const SizedBox(height: Ui.s16),
@@ -148,7 +153,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
 
 class _SpendBarChart extends StatelessWidget {
   final List<_DayTotal> daily;
-  const _SpendBarChart(this.daily);
+    final String currencyCode;
+  
+  const _SpendBarChart(this.daily, {required this.currencyCode});
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +164,7 @@ class _SpendBarChart extends StatelessWidget {
     final maxY = daily.map((e) => e.amount).fold<double>(0, (p, v) => v > p ? v : p);
 
     return Container(
-      padding: const EdgeInsets.all(Ui.s16),
+      padding: const EdgeInsets.all(Ui.s14),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withValues(alpha: 0.22),
         borderRadius: BorderRadius.circular(Ui.r22),
@@ -170,6 +177,24 @@ class _SpendBarChart extends StatelessWidget {
             maxY: (maxY <= 0) ? 1 : (maxY * 1.2),
             gridData: const FlGridData(show: false),
             borderData: FlBorderData(show: false),
+             barTouchData: BarTouchData(
+              enabled: true,
+              touchTooltipData: BarTouchTooltipData(
+                tooltipPadding: const EdgeInsets.all(8),
+                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                  final label = daily[group.x].label;
+                  final value = rod.toY;
+
+                  return BarTooltipItem(
+                    "$label\n${_money(value, currencyCode: currencyCode)}",
+                    TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  );
+                },
+              ),
+            ),
             titlesData: FlTitlesData(
               leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -184,7 +209,7 @@ class _SpendBarChart extends StatelessWidget {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
-                        daily[i].label.length > 5 ? daily[i].label.substring(0, 5) : daily[i].label,
+                        daily[i].label,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -203,8 +228,15 @@ class _SpendBarChart extends StatelessWidget {
                   BarChartRodData(
                     toY: daily[i].amount,
                     width: 14,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(8),
+                    color: cs.primary, // ✅ strong visible
+                    backDrawRodData: BackgroundBarChartRodData(
+                      show: true,
+                      toY: (maxY <= 0) ? 1 : (maxY * 1.2),
+                      color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
+                    ),
                   ),
+
                 ],
               );
             }),
@@ -214,109 +246,6 @@ class _SpendBarChart extends StatelessWidget {
     );
   }
 }
-
-
-class _DonutCategoryChart extends StatelessWidget {
-  final Map<String, double> data;
-  final double total;
-
-  const _DonutCategoryChart({
-    required this.data,
-    required this.total,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    final entries = data.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    // keep chart readable: top 5 + "Other"
-    final top = entries.take(5).toList();
-    final otherSum = entries.skip(5).fold<double>(0, (p, e) => p + e.value);
-
-    final finalEntries = [
-      ...top,
-      if (otherSum > 0) MapEntry("Other", otherSum),
-    ];
-
-    final sections = <PieChartSectionData>[];
-    for (int i = 0; i < finalEntries.length; i++) {
-      final e = finalEntries[i];
-      final pct = total <= 0 ? 0 : (e.value / total);
-      sections.add(
-        PieChartSectionData(
-          value: e.value,
-          radius: 48,
-          title: pct <= 0 ? "" : "${(pct * 100).round()}%",
-          titleStyle: TextStyle(
-            fontWeight: FontWeight.w900,
-            color: cs.onPrimary,
-            fontSize: 12,
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(Ui.s16),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.22),
-        borderRadius: BorderRadius.circular(Ui.r22),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 140,
-            height: 140,
-            child: PieChart(
-              PieChartData(
-                sections: sections,
-                centerSpaceRadius: 46, // donut hole
-                sectionsSpace: 3,
-              ),
-            ),
-          ),
-          const SizedBox(width: Ui.s14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: finalEntries.map((e) {
-                final pct = total <= 0 ? 0 : ((e.value / total) * 100).round();
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          e.key,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        "$pct%",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _InteractiveDonutCategoryChart extends StatefulWidget {
 
   final Map<String, double> data;
@@ -352,13 +281,19 @@ class _InteractiveDonutCategoryChartState
 
     final finalEntries = <MapEntry<String, double>>[
       ...top,
-      if (otherSum > 0) MapEntry("Other", otherSum),
+      if (otherSum > 0) const MapEntry("Other", 0), // placeholder; replaced below
     ];
+
+    if (otherSum > 0) {
+      finalEntries[finalEntries.length - 1] = MapEntry("Other", otherSum);
+    }
 
     final total = widget.total <= 0 ? 1.0 : widget.total;
 
     final selected =
-        (_touchedIndex != null && _touchedIndex! >= 0 && _touchedIndex! < finalEntries.length)
+        (_touchedIndex != null &&
+                _touchedIndex! >= 0 &&
+                _touchedIndex! < finalEntries.length)
             ? finalEntries[_touchedIndex!]
             : (finalEntries.isNotEmpty ? finalEntries.first : null);
 
@@ -375,7 +310,7 @@ class _InteractiveDonutCategoryChartState
       return PieChartSectionData(
         color: bg,
         value: e.value,
-        radius: isTouched ? 56 : 48,
+        radius: isTouched ? 50 : 44,
         title: pct < 6 ? "" : "${pct.round()}%",
         titleStyle: TextStyle(
           fontWeight: FontWeight.w900,
@@ -395,81 +330,88 @@ class _InteractiveDonutCategoryChartState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 160,
-                height: 160,
-                child: PieChart(
-                  PieChartData(
-                    sections: sections,
-                    centerSpaceRadius: 50,
-                    sectionsSpace: 3,
-                    pieTouchData: PieTouchData(
-                      touchCallback: (event, response) {
-                        if (!event.isInterestedForInteractions) return;
+          // ✅ small inset so chart doesn't touch the card edges
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 140,
+                  height: 140,
+                  child: PieChart(
+                    PieChartData(
+                      sections: sections,
+                      centerSpaceRadius: 44,
+                      sectionsSpace: 2,
+                      pieTouchData: PieTouchData(
+                        touchCallback: (event, response) {
+                          if (!event.isInterestedForInteractions) return;
 
-                        final idx = response?.touchedSection?.touchedSectionIndex;
-                        setState(() {
-                          _touchedIndex = idx;
-                        });
-                      },
-                    ),
-                  ),
-                  // Smooth animation:
-                  swapAnimationDuration: const Duration(milliseconds: 350),
-                  swapAnimationCurve: Curves.easeOutCubic,
-                ),
-              ),
-              const SizedBox(width: Ui.s14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: finalEntries.map((e) {
-                    final pct = ((e.value / total) * 100).round();
-                    final dot = _categoryColor(context, e.key);
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: Ui.s10),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: dot,
-                              borderRadius: BorderRadius.circular(99),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              e.key,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontWeight: FontWeight.w800),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            "$pct%",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              color: cs.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
+                          final idx =
+                              response?.touchedSection?.touchedSectionIndex;
+                          setState(() => _touchedIndex = idx);
+                        },
                       ),
-                    );
-                  }).toList(),
+                    ),
+                    swapAnimationDuration: const Duration(milliseconds: 350),
+                    swapAnimationCurve: Curves.easeOutCubic,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(width: Ui.s14),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                children: finalEntries
+                      .where((e) => e.value > 0) // ✅ hide 0%
+                      .map((e) {
+                      final pct = ((e.value / total) * 100).round();
+                      final dot = _categoryColor(context, e.key);
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: Ui.s8),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: dot,
+                                borderRadius: BorderRadius.circular(99),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                e.key,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              "$pct%",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
           ),
 
-          const SizedBox(height: Ui.s12),
+          const SizedBox(height: Ui.s10),
 
-          // Selected slice info (animated)
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
             switchInCurve: Curves.easeOut,
@@ -478,11 +420,16 @@ class _InteractiveDonutCategoryChartState
                 ? const SizedBox.shrink()
                 : Container(
                     key: ValueKey(selected.key),
-                    padding: const EdgeInsets.symmetric(horizontal: Ui.s12, vertical: Ui.s10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Ui.s10,
+                      vertical: Ui.s8,
+                    ),
                     decoration: BoxDecoration(
                       color: cs.surface.withValues(alpha: 0.35),
                       borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
+                      border: Border.all(
+                        color: cs.outlineVariant.withValues(alpha: 0.35),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -505,7 +452,8 @@ class _InteractiveDonutCategoryChartState
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          _money(selected.value, currencyCode: widget.currencyCode),
+                          _money(selected.value,
+                              currencyCode: widget.currencyCode),
                           style: const TextStyle(fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(width: 10),
@@ -525,6 +473,7 @@ class _InteractiveDonutCategoryChartState
     );
   }
 }
+
 
 
 /* ------------------------------ UI ------------------------------ */
@@ -1047,9 +996,13 @@ String _dayLabel(DateTime d) {
   final diff = today.difference(date).inDays;
 
   if (diff == 0) return "Today";
-  if (diff == 1) return "Yesterday";
-  return "${d.day}/${d.month}";
+  if (diff == 1) return "Yday";
+
+  // Short weekday for recent days
+  const wd = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  return wd[d.weekday - 1]; // ✅ clean + short
 }
+
 
 Map<String, double> _groupByCategory(List<Expense> expenses) {
   final map = <String, double>{};
@@ -1073,11 +1026,8 @@ String _money(double amount, {required String currencyCode}) {
 }
 
 String _categoryLabel(Expense e) {
-  try {
-    return (e.category as dynamic).name.toString();
-  } catch (_) {
-    return "Category";
-  }
+  final name = e.category.name;      // food
+  return name[0].toUpperCase() + name.substring(1); // Food
 }
 
 IconData _iconFromCategoryName(String name) {
