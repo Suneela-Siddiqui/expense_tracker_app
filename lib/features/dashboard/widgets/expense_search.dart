@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_course_project/core/state/app_riverpod_state.dart';
-import 'package:flutter_course_project/features/dashboard/widgets/helpers.dart';
+import 'package:flutter_course_project/features/dashboard/widgets/dashboard_helpers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ExpenseSearchDelegate extends SearchDelegate {
@@ -51,8 +51,8 @@ class _SearchResults extends ConsumerWidget {
         final e = filtered[i];
         return ListTile(
           title: Text(e.title),
-          subtitle: Text("${Helpers().categoryName(e)} • ${Helpers().niceDate(e.date)}"),
-          trailing: Text(Helpers().money(e.amount, currencyCode: appState.currencyCode)),
+          subtitle: Text("${DashboardHelpers().categoryName(e)} • ${DashboardHelpers().niceDate(e.date)}"),
+          trailing: Text(DashboardHelpers().money(e.amount, currencyCode: appState.currencyCode)),
         );
       },
     );

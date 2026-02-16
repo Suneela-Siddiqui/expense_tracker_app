@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_course_project/models/expense.dart';
 
-class Helpers {
+class DashboardHelpers {
   double sum(List<Expense> expenses) {
   double total = 0;
   for (final e in expenses) total += e.amount;

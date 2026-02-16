@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/bell_with_badge.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/breakdown_card.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/empty_card.dart';
-import 'package:flutter_course_project/features/dashboard/widgets/helpers.dart';
+import 'package:flutter_course_project/features/dashboard/widgets/dashboard_helpers.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/icon_pill_button.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/month_header.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/primary_fab.dart';
@@ -44,16 +44,16 @@ class DashboardScreen extends ConsumerWidget {
         .where((e) => e.date.year == now.year && e.date.month == now.month)
         .toList();
 
-    final totalSpentThisMonth = Helpers().sum(monthExpenses);
+    final totalSpentThisMonth = DashboardHelpers().sum(monthExpenses);
     final double remaining =
         (_monthlyBudget - totalSpentThisMonth).clamp(0.0, double.infinity).toDouble();
 
     // optional quick context chips
-    final todaySpent = Helpers().sum(Helpers().filterDay(allExpenses, DateTime.now()));
+    final todaySpent = DashboardHelpers().sum(DashboardHelpers().filterDay(allExpenses, DateTime.now()));
     final yesterdaySpent =
-       Helpers().sum(Helpers().filterDay(allExpenses, DateTime.now().subtract(const Duration(days: 1))));
+       DashboardHelpers().sum(DashboardHelpers().filterDay(allExpenses, DateTime.now().subtract(const Duration(days: 1))));
 
-    final tags = Helpers().topCategoryTags(monthExpenses, take: 3);
+    final tags = DashboardHelpers().topCategoryTags(monthExpenses, take: 3);
 
 
 
@@ -114,7 +114,7 @@ class DashboardScreen extends ConsumerWidget {
                 onAddExpense: (Expense e) {
                   notifier.addExpense(e);
                   notifier.addNotification(
-                    "Added: ${e.title} • ${Helpers().money(e.amount, currencyCode: appState.currencyCode)}",
+                    "Added: ${e.title} • ${DashboardHelpers().money(e.amount, currencyCode: appState.currencyCode)}",
                   );
 
                 },
@@ -130,7 +130,7 @@ class DashboardScreen extends ConsumerWidget {
           Padding(
             padding: Ui.page,
             child: MonthHeader(
-              monthText: Helpers().monthName(DateTime.now()),
+              monthText: DashboardHelpers().monthName(DateTime.now()),
               onTapFilter: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Filters coming next ✅")),
@@ -146,7 +146,7 @@ class DashboardScreen extends ConsumerWidget {
                 Expanded(
                   child: SummaryCard(
                     title: "Remaining",
-                    value: Helpers().money(remaining, currencyCode: appState.currencyCode),
+                    value: DashboardHelpers().money(remaining, currencyCode: appState.currencyCode),
                     icon: Icons.savings_rounded,
                     tint: cs.tertiaryContainer,
                   ),
@@ -155,7 +155,7 @@ class DashboardScreen extends ConsumerWidget {
                 Expanded(
                   child: SummaryCard(
                     title: "This month",
-                    value: Helpers().money(totalSpentThisMonth, currencyCode: appState.currencyCode),
+                    value: DashboardHelpers().money(totalSpentThisMonth, currencyCode: appState.currencyCode),
                     icon: Icons.payments_rounded,
                     tint: cs.primaryContainer,
                   ),
@@ -180,9 +180,9 @@ class DashboardScreen extends ConsumerWidget {
           Padding(
             padding: Ui.page,
             child: BreakdownCard(
-            total: Helpers().money(totalSpentThisMonth, currencyCode: appState.currencyCode),
-            today: Helpers().money(todaySpent, currencyCode: appState.currencyCode),
-            yesterday: Helpers().money(yesterdaySpent, currencyCode: appState.currencyCode),
+            total: DashboardHelpers().money(totalSpentThisMonth, currencyCode: appState.currencyCode),
+            today: DashboardHelpers().money(todaySpent, currencyCode: appState.currencyCode),
+            yesterday: DashboardHelpers().money(yesterdaySpent, currencyCode: appState.currencyCode),
             topTags: tags.isEmpty ? const ["No data this month"] : tags,
           ),
           ),
@@ -212,9 +212,9 @@ class DashboardScreen extends ConsumerWidget {
               children: recent.map((e) {
                 return TransactionTile(
                   title: e.title,
-                  subtitle: "${Helpers().categoryName(e)} • ${Helpers().niceDate(e.date)}",
-                  amount: "- ${Helpers().money(e.amount, currencyCode: appState.currencyCode)}",
-                  icon: Helpers().categoryIcon(e),
+                  subtitle: "${DashboardHelpers().categoryName(e)} • ${DashboardHelpers().niceDate(e.date)}",
+                  amount: "- ${DashboardHelpers().money(e.amount, currencyCode: appState.currencyCode)}",
+                  icon: DashboardHelpers().categoryIcon(e),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Tapped: ${e.title}")),
