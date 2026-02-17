@@ -125,6 +125,26 @@ void clearDashboardFilter() {
   state = state.copyWith(dashboardFilter: DashboardFilter.defaults);
 }
 
+void removeNotification(String id) {
+  final updated = state.notifications.where((n) => n.id != id).toList();
+  state = state.copyWith(notifications: updated);
+}
+
+void addExistingNotification(AppNotification n) {
+  state = state.copyWith(notifications: [n, ...state.notifications]);
+}
+
+
+void toggleNotificationRead(String id) {
+  final updated = state.notifications
+      .map((n) => n.id == id ? n.copyWith(isRead: !n.isRead) : n)
+      .toList();
+
+  state = state.copyWith(notifications: updated);
+}
+
+
+
 }
 
 
