@@ -3,7 +3,16 @@ import 'package:flutter/material.dart';
 class MonthHeader extends StatelessWidget {
   final String monthText;
   final VoidCallback onTapFilter;
-  const MonthHeader({super.key, required this.monthText, required this.onTapFilter});
+
+  /// ✅ NEW
+  final bool hasActiveFilters;
+
+  const MonthHeader({
+    super.key,
+    required this.monthText,
+    required this.onTapFilter,
+    this.hasActiveFilters = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +31,9 @@ class MonthHeader extends StatelessWidget {
           ),
         ),
         Material(
-          color: cs.surfaceContainerHighest.withValues(alpha: 0.45),
+          color: hasActiveFilters
+              ? cs.primaryContainer
+              : cs.surfaceContainerHighest.withValues(alpha: 0.45),
           borderRadius: BorderRadius.circular(999),
           child: InkWell(
             borderRadius: BorderRadius.circular(999),
@@ -31,12 +42,36 @@ class MonthHeader extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 children: [
-                  Icon(Icons.tune_rounded, size: 18, color: cs.onSurface),
-                  const SizedBox(width: 6),
-                  Text(
-                    "Filters",
-                    style: t.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w900),
+                  Icon(
+                    Icons.tune_rounded,
+                    size: 18,
+                    color: hasActiveFilters
+                        ? cs.onPrimaryContainer
+                        : cs.onSurface,
                   ),
+                  const SizedBox(width: 6),
+
+                  Text(
+                    hasActiveFilters ? "Filtered" : "Filters",
+                    style: t.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      color: hasActiveFilters
+                          ? cs.onPrimaryContainer
+                          : null,
+                    ),
+                  ),
+
+                  if (hasActiveFilters) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: cs.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ]
                 ],
               ),
             ),

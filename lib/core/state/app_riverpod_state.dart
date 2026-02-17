@@ -1,34 +1,42 @@
+import 'package:flutter_course_project/features/dashboard/widgets/dashboard_filter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_course_project/models/expense.dart';
 import 'dart:async';
 import 'package:flutter_course_project/core/storage/expense_prefs_repository.dart';
 import 'package:flutter_course_project/models/app_notification.dart';
 
+
 class AppStateData {
   final List<Expense> expenses;
-  final List<AppNotification> notifications; 
+  final List<AppNotification> notifications;
   final String currencyCode;
+
+  final DashboardFilter dashboardFilter; // ✅ NEW
 
   const AppStateData({
     this.expenses = const [],
     this.notifications = const [],
     this.currencyCode = 'PKR',
+    this.dashboardFilter = DashboardFilter.defaults, // ✅ default
   });
 
-  int get unreadCount => notifications.where((n) => !n.isRead).length; 
+  int get unreadCount => notifications.where((n) => !n.isRead).length;
 
   AppStateData copyWith({
     List<Expense>? expenses,
     List<AppNotification>? notifications,
     String? currencyCode,
+    DashboardFilter? dashboardFilter, // ✅ NEW
   }) {
     return AppStateData(
       expenses: expenses ?? this.expenses,
       notifications: notifications ?? this.notifications,
       currencyCode: currencyCode ?? this.currencyCode,
+      dashboardFilter: dashboardFilter ?? this.dashboardFilter, // ✅ NEW
     );
   }
 }
+
 
 
 final expensePrefsRepositoryProvider =
@@ -108,6 +116,15 @@ void clearAllNotifications() {
     final repo = ref.read(expensePrefsRepositoryProvider);
     unawaited(repo.saveExpenses(state.expenses));
   }
+
+  void setDashboardFilter(DashboardFilter f) {
+  state = state.copyWith(dashboardFilter: f);
+}
+
+void clearDashboardFilter() {
+  state = state.copyWith(dashboardFilter: DashboardFilter.defaults);
+}
+
 }
 
 
