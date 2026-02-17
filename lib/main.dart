@@ -5,6 +5,7 @@ import 'package:flutter_course_project/features/dashboard/dashboard_screen.dart'
 import 'package:flutter_course_project/features/analytics/analytics_screen.dart';
 import 'package:flutter_course_project/features/notifications/notifications_screen.dart';
 import 'package:flutter_course_project/features/expenses/expenses_screen.dart';
+import 'package:flutter_course_project/features/insights/insights_screen.dart';
 
 
 void main() {
@@ -26,7 +27,7 @@ class SpendWiseApp extends StatelessWidget {
         AnalyticsScreen.routeName: (_) => const AnalyticsScreen(),
         NotificationsScreen.routeName: (_) => const NotificationsScreen(),
         ExpensesScreen.routeName: (_) => const ExpensesScreen(),
-
+        InsightsScreen.routeName: (_) => const InsightsScreen(),
       },
     );
   }

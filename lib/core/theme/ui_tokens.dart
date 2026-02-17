@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class Ui {
   // Spacing scale (8-pt system)
   static const double s4 = 4;
+  static const double s6 = 6;
   static const double s8 = 8;
   static const double s10 = 10;
   static const double s12 = 12;
@@ -19,6 +20,8 @@ class Ui {
   static const double r18 = 18;
   static const double r22 = 22;
   static const double r28 = 28;
+  static const double r24 = 24;
+  
 
   // Page padding
   static const EdgeInsets page = EdgeInsets.symmetric(horizontal: s16);
