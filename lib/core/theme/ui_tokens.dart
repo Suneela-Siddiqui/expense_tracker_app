@@ -20,6 +20,8 @@ class Ui {
   static const double r18 = 18;
   static const double r22 = 22;
   static const double r28 = 28;
+  static const double r24 = 24;
+  
 
   // Page padding
   static const EdgeInsets page = EdgeInsets.symmetric(horizontal: s16);

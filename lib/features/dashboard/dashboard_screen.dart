@@ -13,6 +13,7 @@ import 'package:flutter_course_project/features/dashboard/widgets/section_header
 import 'package:flutter_course_project/features/dashboard/widgets/summary_card.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/transaction_tile.dart';
 import 'package:flutter_course_project/features/expenses/expenses_screen.dart';
+import 'package:flutter_course_project/features/insights/insights_screen.dart';
 import 'package:flutter_course_project/features/search/expense_search_delegate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_course_project/core/state/app_riverpod_state.dart';
@@ -93,12 +94,21 @@ class DashboardScreen extends ConsumerWidget {
             onTap: () {
               showSearch(
                 context: context,
-                delegate: ExpenseSearchDelegate(container: ref.container), // ✅ FIX
+                delegate: ExpenseSearchDelegate(container: ref.container),
               );
             },
           ),
 
           const SizedBox(width: Ui.s8),
+
+          // ✅ NEW: Insights button
+          IconPillButton(
+            icon: Icons.auto_awesome_rounded,
+            onTap: () => Navigator.pushNamed(context, InsightsScreen.routeName),
+          ),
+
+          const SizedBox(width: Ui.s8),
+
           BellWithBadge(
             unread: appState.unreadCount,
             onTap: () => Navigator.pushNamed(
@@ -106,8 +116,10 @@ class DashboardScreen extends ConsumerWidget {
               NotificationsScreen.routeName,
             ),
           ),
+
           const SizedBox(width: Ui.s16),
         ],
+
       ),
       floatingActionButton: PrimaryFab(
         label: "Add expense",
