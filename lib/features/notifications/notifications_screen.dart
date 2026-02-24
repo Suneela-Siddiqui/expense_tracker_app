@@ -19,8 +19,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context);
-    final cs = t.colorScheme;
 
     final appState = ref.watch(appStateProvider);
     final notifier = ref.read(appStateProvider.notifier);
@@ -398,7 +396,6 @@ class _SwipeableNotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: Ui.s12),
