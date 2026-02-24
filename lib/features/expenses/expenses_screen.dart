@@ -23,19 +23,7 @@ class ExpensesScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text("All Expenses"),
         centerTitle: false,
-        actions: [
-          IconButton(
-            tooltip: "Search",
-            icon: const Icon(Icons.search_rounded),
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: _AllExpensesSearch(expenses, appState.currencyCode),
-              );
-            },
-          ),
-          const SizedBox(width: Ui.s8),
-        ],
+        
       ),
       body: expenses.isEmpty
           ? const _PrettyEmptyState(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_course_project/core/theme/app_theme.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/bell_with_badge.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/breakdown_card.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/dashboard_filter_sheet.dart';
@@ -75,6 +76,7 @@ class DashboardScreen extends ConsumerWidget {
               style: t.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w900,
                 letterSpacing: -0.2,
+                color: AppTheme.deepSpace,
               ),
             ),
             const SizedBox(height: 2),
@@ -92,7 +94,7 @@ class DashboardScreen extends ConsumerWidget {
             onTap: () {
               showSearch(
                 context: context,
-                delegate: ExpenseSearchDelegate(container: ref.container),
+                delegate: ExpenseSearchDelegate(),
               );
             },
           ),
@@ -177,7 +179,7 @@ class DashboardScreen extends ConsumerWidget {
                     title: "Remaining",
                     value: helpers.money(remaining, currencyCode: appState.currencyCode),
                     icon: Icons.savings_rounded,
-                    tint: cs.tertiaryContainer,
+                    tint: cs.secondary,
                   ),
                 ),
                 const SizedBox(width: Ui.s12),
@@ -186,7 +188,7 @@ class DashboardScreen extends ConsumerWidget {
                     title: "This month",
                     value: helpers.money(totalSpentThisMonth, currencyCode: appState.currencyCode),
                     icon: Icons.payments_rounded,
-                    tint: cs.primaryContainer,
+                    tint: cs.primary,
                   ),
                 ),
               ],

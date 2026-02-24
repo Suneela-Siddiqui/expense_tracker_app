@@ -5,9 +5,14 @@ class SummaryCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
+
+  /// Pass:
+  /// - cs.primary (raspberry) for “This month”
+  /// - cs.secondary (deep space) for “Remaining”
   final Color tint;
 
-  const SummaryCard({super.key, 
+  const SummaryCard({
+    super.key,
     required this.title,
     required this.value,
     required this.icon,
@@ -20,29 +25,61 @@ class SummaryCard extends StatelessWidget {
     final cs = t.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(Ui.s14),
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.85),
+        // ✅ premium neutral surface
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.60),
         borderRadius: BorderRadius.circular(Ui.r22),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45), width: 1),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.75),
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
+          // ✅ brand accent strip (small + classy)
+          Container(
+            width: 6,
+            height: 44,
+            decoration: BoxDecoration(
+              color: tint,
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(width: Ui.s12),
+
+          // ✅ icon chip (subtle tint)
           Container(
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: cs.surface.withValues(alpha: 0.30),
+              color: tint.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(Ui.r14),
+              border: Border.all(
+                color: tint.withValues(alpha: 0.18),
+                width: 1,
+              ),
             ),
-            child: Icon(icon, size: 22),
+            child: Icon(
+              icon,
+              size: 22,
+              color: cs.secondary, // ✅ Deep Space structural
+            ),
           ),
+
           const SizedBox(width: Ui.s12),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: t.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                Text(
+                  title,
+                  style: t.textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 FittedBox(
                   fit: BoxFit.scaleDown,
@@ -52,6 +89,7 @@ class SummaryCard extends StatelessWidget {
                     style: t.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.2,
+                      color: cs.secondary, // ✅ Deep Space
                     ),
                   ),
                 ),
