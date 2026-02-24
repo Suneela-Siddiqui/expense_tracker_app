@@ -29,7 +29,6 @@ final helper = AnalyticsHelper();
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
-    final cs = t.colorScheme;
 
     final appState = ref.watch(appStateProvider);
     final allExpenses = appState.expenses;

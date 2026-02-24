@@ -20,8 +20,6 @@ class QuickStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context);
-    final cs = t.colorScheme;
 
     return SizedBox(
       height: 72, 

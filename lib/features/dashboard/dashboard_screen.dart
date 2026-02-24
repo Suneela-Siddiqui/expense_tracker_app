@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/bell_with_badge.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/breakdown_card.dart';
-import 'package:flutter_course_project/features/dashboard/widgets/dashboard_filter.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/dashboard_filter_sheet.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/dashboard_stats_section.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/empty_card.dart';
@@ -62,7 +61,6 @@ class DashboardScreen extends ConsumerWidget {
     final tags =helpers.topCategoryTags(monthExpenses, take: 3);
 
     final filter = appState.dashboardFilter;
-    final filtered = applyDashboardFilter(allExpenses, filter);
 
 
     return Scaffold(

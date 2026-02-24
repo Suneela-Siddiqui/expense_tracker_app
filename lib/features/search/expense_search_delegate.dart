@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_course_project/core/state/app_riverpod_state.dart';
-import 'package:flutter_course_project/models/expense.dart';
 
 class ExpenseSearchDelegate extends SearchDelegate {
   final ProviderContainer container;

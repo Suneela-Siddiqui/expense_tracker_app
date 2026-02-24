@@ -12,7 +12,6 @@ class InsightsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context);
-    final cs = t.colorScheme;
 
     final appState = ref.watch(appStateProvider);
     final currencyCode = appState.currencyCode;

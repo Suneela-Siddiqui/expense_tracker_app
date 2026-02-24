@@ -376,7 +376,7 @@ class _AllExpensesSearch extends SearchDelegate {
   Widget buildSuggestions(BuildContext context) => _searchBody(context);
 
   Widget _searchBody(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+
 
     final q = query.trim().toLowerCase();
     final filtered = q.isEmpty
