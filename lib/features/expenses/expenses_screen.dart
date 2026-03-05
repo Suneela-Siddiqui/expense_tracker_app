@@ -23,7 +23,6 @@ class ExpensesScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text("All Expenses"),
         centerTitle: false,
-        
       ),
       body: expenses.isEmpty
           ? const _PrettyEmptyState(
@@ -75,6 +74,52 @@ class ExpensesScreen extends ConsumerWidget {
   }
 }
 
+/* ------------------------------ Press Animation Wrapper ------------------------------ */
+
+class _PressScaleInk extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+  final BorderRadius borderRadius;
+
+  const _PressScaleInk({
+    required this.child,
+    required this.onTap,
+    required this.borderRadius,
+  });
+
+  @override
+  State<_PressScaleInk> createState() => _PressScaleInkState();
+}
+
+class _PressScaleInkState extends State<_PressScaleInk> {
+  bool _pressed = false;
+
+  void _setPressed(bool v) {
+    if (_pressed == v) return;
+    setState(() => _pressed = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      scale: _pressed ? 0.985 : 1.0,
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOutCubic,
+      child: InkWell(
+        borderRadius: widget.borderRadius,
+        onTap: () {
+          _setPressed(false);
+          widget.onTap();
+        },
+        onTapDown: (_) => _setPressed(true),
+        onTapCancel: () => _setPressed(false),
+        onTapUp: (_) => _setPressed(false),
+        child: widget.child,
+      ),
+    );
+  }
+}
+
 /* ------------------------------ UI ------------------------------ */
 
 class _ExpenseCard extends StatelessWidget {
@@ -99,17 +144,18 @@ class _ExpenseCard extends StatelessWidget {
     final t = Theme.of(context);
     final cs = t.colorScheme;
 
+    final radius = BorderRadius.circular(Ui.r22);
+
     return Material(
       color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
-      borderRadius: BorderRadius.circular(Ui.r22),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Ui.r22),
+      borderRadius: radius,
+      child: _PressScaleInk(
+        borderRadius: radius,
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(Ui.s14),
           child: Row(
             children: [
-              // ✅ Icon (back to premium layout)
               Container(
                 width: 48,
                 height: 48,
@@ -126,7 +172,6 @@ class _ExpenseCard extends StatelessWidget {
 
               const SizedBox(width: Ui.s12),
 
-              // ✅ Title + Subtitle
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,7 +201,6 @@ class _ExpenseCard extends StatelessWidget {
 
               const SizedBox(width: Ui.s10),
 
-              // ✅ Amount only (no duplicate hint chips)
               Text(
                 amount,
                 style: t.textTheme.titleSmall?.copyWith(
@@ -192,11 +236,13 @@ class _SearchResultTile extends StatelessWidget {
     final t = Theme.of(context);
     final cs = t.colorScheme;
 
+    final radius = BorderRadius.circular(Ui.r16);
+
     return Material(
       color: cs.surfaceContainerHighest.withValues(alpha: 0.18),
-      borderRadius: BorderRadius.circular(Ui.r16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Ui.r16),
+      borderRadius: radius,
+      child: _PressScaleInk(
+        borderRadius: radius,
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: Ui.s14, vertical: Ui.s12),
@@ -364,19 +410,14 @@ class _AllExpensesSearch extends SearchDelegate {
   Widget buildSuggestions(BuildContext context) => _searchBody(context);
 
   Widget _searchBody(BuildContext context) {
-
-
     final q = query.trim().toLowerCase();
-    final filtered = q.isEmpty
-        ? all
-        : all.where((e) => e.title.toLowerCase().contains(q)).toList();
+    final filtered =
+        q.isEmpty ? all : all.where((e) => e.title.toLowerCase().contains(q)).toList();
 
-    // ✅ Correct empty state
     if (filtered.isEmpty) {
       return const Center(child: Text("No results"));
     }
 
-    // ✅ Search uses compact tile (DIFFERENT from All Expenses)
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(Ui.s16, Ui.s12, Ui.s16, Ui.s24),
       itemCount: filtered.length,

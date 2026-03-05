@@ -81,15 +81,30 @@ class ExpenseSearchDelegate extends SearchDelegate {
   }
 
   @override
-  Widget buildResults(BuildContext context) => _SearchResults(query: query);
+  Widget buildResults(BuildContext context) {
+    return _SearchResults(
+      query: query,
+      onPick: (expense) => close(context, expense),
+    );
+  }
 
   @override
-  Widget buildSuggestions(BuildContext context) => _SearchResults(query: query);
+  Widget buildSuggestions(BuildContext context) {
+    return _SearchResults(
+      query: query,
+      onPick: (expense) => close(context, expense),
+    );
+  }
 }
 
 class _SearchResults extends ConsumerWidget {
   final String query;
-  const _SearchResults({required this.query});
+  final void Function(dynamic expense) onPick;
+
+  const _SearchResults({
+    required this.query,
+    required this.onPick,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -124,63 +139,115 @@ class _SearchResults extends ConsumerWidget {
         final e = filtered[i];
 
         final title = e.title;
-        final subtitle =
-            "${DashboardHelpers().categoryName(e)} • ${DashboardHelpers().niceDate(e.date)}";
+        // ✅ as you asked: no category here — only date
+        final subtitle = DashboardHelpers().niceDate(e.date);
         final amount =
             DashboardHelpers().money(e.amount, currencyCode: appState.currencyCode);
 
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: cs.outlineVariant.withValues(alpha: 0.80),
-              width: 1,
+        return _Pressable(
+          onTap: () => onPick(e),
+          borderRadius: BorderRadius.circular(18),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: 0.80),
+                width: 1,
+              ),
             ),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: t.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.2,
-                        color: cs.secondary, // Deep Space structure
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: t.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.2,
+                          color: cs.secondary, // Deep Space structure
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: t.textTheme.bodySmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                        fontWeight: FontWeight.w700,
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: t.textTheme.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                amount,
-                style: t.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -0.2,
-                  color: cs.secondary,
+                const SizedBox(width: 12),
+                Text(
+                  amount,
+                  style: t.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.2,
+                    color: cs.secondary,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
+    );
+  }
+}
+
+/// Small “premium” press animation: scale + slight opacity.
+class _Pressable extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+  final BorderRadius borderRadius;
+
+  const _Pressable({
+    required this.child,
+    required this.onTap,
+    required this.borderRadius,
+  });
+
+  @override
+  State<_Pressable> createState() => _PressableState();
+}
+
+class _PressableState extends State<_Pressable> {
+  bool _down = false;
+
+  void _setDown(bool v) {
+    if (_down == v) return;
+    setState(() => _down = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _setDown(true),
+      onTapUp: (_) => _setDown(false),
+      onTapCancel: () => _setDown(false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 110),
+        curve: Curves.easeOut,
+        scale: _down ? 0.98 : 1.0,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 110),
+          opacity: _down ? 0.92 : 1.0,
+          child: ClipRRect(
+            borderRadius: widget.borderRadius,
+            child: widget.child,
+          ),
+        ),
+      ),
     );
   }
 }

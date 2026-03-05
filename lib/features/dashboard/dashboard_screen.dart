@@ -13,6 +13,7 @@ import 'package:flutter_course_project/features/dashboard/widgets/section_header
 import 'package:flutter_course_project/features/dashboard/widgets/summary_card.dart';
 import 'package:flutter_course_project/features/dashboard/widgets/transaction_tile.dart';
 import 'package:flutter_course_project/features/expenses/expenses_screen.dart';
+import 'package:flutter_course_project/features/expenses/widgets/expense_details_sheet.dart';
 import 'package:flutter_course_project/features/insights/insights_screen.dart';
 import 'package:flutter_course_project/features/search/expense_search_delegate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -91,10 +92,27 @@ class DashboardScreen extends ConsumerWidget {
         actions: [
           IconPillButton(
             icon: Icons.search_rounded,
-            onTap: () {
-              showSearch(
+            onTap: () async {
+              final appState = ref.read(appStateProvider);
+
+              final picked = await showSearch<dynamic>(
                 context: context,
                 delegate: ExpenseSearchDelegate(),
+              );
+
+              if (picked == null) return;
+
+              if (!context.mounted) return;
+
+              showModalBottomSheet(
+                context: context,
+                useSafeArea: true,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => ExpenseDetailsSheet(
+                  expense: picked,
+                  currencyCode: appState.currencyCode,
+                ),
               );
             },
           ),
