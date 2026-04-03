@@ -5,7 +5,9 @@ import 'package:flutter_course_project/models/expense.dart';
 class ExpensePrefsRepository {
   static const _key = 'expenses_v1';
   static const _currencyKey = 'currency_v1';
+  static const _budgetKey = 'monthly_budget_v1'; // ✅ NEW
 
+  // ------------------ EXPENSES ------------------
   Future<List<Expense>> loadExpenses() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_key);
@@ -28,18 +30,38 @@ class ExpensePrefsRepository {
     await prefs.setString(_key, encoded);
   }
 
+  // ------------------ CURRENCY ------------------
   Future<String?> loadCurrencyCode() async {
-  final prefs = await SharedPreferences.getInstance();
-  return prefs.getString(_currencyKey);
-}
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_currencyKey);
+  }
 
-Future<void> saveCurrencyCode(String code) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString(_currencyKey, code);
-}
+  Future<void> saveCurrencyCode(String code) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_currencyKey, code);
+  }
 
+  // ------------------ MONTHLY BUDGET ------------------ ✅ NEW
+  Future<double?> loadMonthlyBudget() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(_budgetKey);
+  }
+
+  Future<void> saveMonthlyBudget(double amount) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_budgetKey, amount);
+  }
+
+  Future<void> clearMonthlyBudget() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_budgetKey);
+  }
+
+  // ------------------ CLEAR ALL ------------------
   Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
+    await prefs.remove(_currencyKey);
+    await prefs.remove(_budgetKey); // optional but better
   }
 }

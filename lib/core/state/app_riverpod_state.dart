@@ -1,23 +1,23 @@
-import 'package:flutter_course_project/features/dashboard/widgets/dashboard_filter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_course_project/models/expense.dart';
 import 'dart:async';
 import 'package:flutter_course_project/core/storage/expense_prefs_repository.dart';
+import 'package:flutter_course_project/features/dashboard/widgets/dashboard_filter.dart';
 import 'package:flutter_course_project/models/app_notification.dart';
-
+import 'package:flutter_course_project/models/expense.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AppStateData {
   final List<Expense> expenses;
   final List<AppNotification> notifications;
   final String currencyCode;
-
-  final DashboardFilter dashboardFilter; // ✅ NEW
+  final DashboardFilter dashboardFilter;
+  final double? monthlyBudget;
 
   const AppStateData({
     this.expenses = const [],
     this.notifications = const [],
     this.currencyCode = 'PKR',
-    this.dashboardFilter = DashboardFilter.defaults, // ✅ default
+    this.dashboardFilter = DashboardFilter.defaults,
+    this.monthlyBudget,
   });
 
   int get unreadCount => notifications.where((n) => !n.isRead).length;
@@ -26,21 +26,22 @@ class AppStateData {
     List<Expense>? expenses,
     List<AppNotification>? notifications,
     String? currencyCode,
-    DashboardFilter? dashboardFilter, // ✅ NEW
+    DashboardFilter? dashboardFilter,
+    double? monthlyBudget,
+    bool clearMonthlyBudget = false,
   }) {
     return AppStateData(
       expenses: expenses ?? this.expenses,
       notifications: notifications ?? this.notifications,
       currencyCode: currencyCode ?? this.currencyCode,
-      dashboardFilter: dashboardFilter ?? this.dashboardFilter, // ✅ NEW
+      dashboardFilter: dashboardFilter ?? this.dashboardFilter,
+      monthlyBudget:
+          clearMonthlyBudget ? null : (monthlyBudget ?? this.monthlyBudget),
     );
   }
 }
 
-
-
-final expensePrefsRepositoryProvider =
-    Provider<ExpensePrefsRepository>((ref) {
+final expensePrefsRepositoryProvider = Provider<ExpensePrefsRepository>((ref) {
   return ExpensePrefsRepository();
 });
 
@@ -52,25 +53,41 @@ class AppStateNotifier extends Notifier<AppStateData> {
   }
 
   Future<void> _loadFromDisk() async {
-  final repo = ref.read(expensePrefsRepositoryProvider);
+    final repo = ref.read(expensePrefsRepositoryProvider);
 
-  final items = await repo.loadExpenses();
-  final code = await repo.loadCurrencyCode();
+    final items = await repo.loadExpenses();
+    final code = await repo.loadCurrencyCode();
+    final budget = await repo.loadMonthlyBudget();
 
-  state = state.copyWith(
-    expenses: items,
-    currencyCode: code ?? state.currencyCode,
-  );
-}
+    state = state.copyWith(
+      expenses: items,
+      currencyCode: code ?? state.currencyCode,
+      monthlyBudget: budget,
+    );
+  }
 
-void setCurrency(String code) {
-  if (code == state.currencyCode) return;
+  void setMonthlyBudget(double amount) {
+    state = state.copyWith(monthlyBudget: amount);
 
-  state = state.copyWith(currencyCode: code);
+    final repo = ref.read(expensePrefsRepositoryProvider);
+    unawaited(repo.saveMonthlyBudget(amount));
+  }
 
-  final repo = ref.read(expensePrefsRepositoryProvider);
-  unawaited(repo.saveCurrencyCode(code));
-}
+  void clearMonthlyBudget() {
+    state = state.copyWith(clearMonthlyBudget: true);
+
+    final repo = ref.read(expensePrefsRepositoryProvider);
+    unawaited(repo.clearMonthlyBudget());
+  }
+
+  void setCurrency(String code) {
+    if (code == state.currencyCode) return;
+
+    state = state.copyWith(currencyCode: code);
+
+    final repo = ref.read(expensePrefsRepositoryProvider);
+    unawaited(repo.saveCurrencyCode(code));
+  }
 
   void addExpense(Expense e) {
     state = state.copyWith(expenses: [e, ...state.expenses]);
@@ -78,39 +95,39 @@ void setCurrency(String code) {
   }
 
   void removeExpense(Expense e) {
-    final updated =
-        state.expenses.where((x) => x.id != e.id).toList();
+    final updated = state.expenses.where((x) => x.id != e.id).toList();
     state = state.copyWith(expenses: updated);
     _persist();
   }
 
- void addNotification(String title) {
-  final n = AppNotification(
-    id: DateTime.now().microsecondsSinceEpoch.toString(),
-    title: title,
-    createdAt: DateTime.now(),
-    isRead: false,
-  );
+  void addNotification(String title) {
+    final n = AppNotification(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      title: title,
+      createdAt: DateTime.now(),
+      isRead: false,
+    );
 
-  state = state.copyWith(notifications: [n, ...state.notifications]);
-}
+    state = state.copyWith(notifications: [n, ...state.notifications]);
+  }
 
-void markNotificationRead(String id) {
-  final updated = state.notifications
-      .map((n) => n.id == id ? n.copyWith(isRead: true) : n)
-      .toList();
+  void markNotificationRead(String id) {
+    final updated = state.notifications
+        .map((n) => n.id == id ? n.copyWith(isRead: true) : n)
+        .toList();
 
-  state = state.copyWith(notifications: updated);
-}
+    state = state.copyWith(notifications: updated);
+  }
 
   void markAllRead() {
-  final updated = state.notifications.map((n) => n.copyWith(isRead: true)).toList();
-  state = state.copyWith(notifications: updated);
-}
+    final updated =
+        state.notifications.map((n) => n.copyWith(isRead: true)).toList();
+    state = state.copyWith(notifications: updated);
+  }
 
-void clearAllNotifications() {
-  state = state.copyWith(notifications: const []);
-}
+  void clearAllNotifications() {
+    state = state.copyWith(notifications: const []);
+  }
 
   void _persist() {
     final repo = ref.read(expensePrefsRepositoryProvider);
@@ -118,35 +135,30 @@ void clearAllNotifications() {
   }
 
   void setDashboardFilter(DashboardFilter f) {
-  state = state.copyWith(dashboardFilter: f);
+    state = state.copyWith(dashboardFilter: f);
+  }
+
+  void clearDashboardFilter() {
+    state = state.copyWith(dashboardFilter: DashboardFilter.defaults);
+  }
+
+  void removeNotification(String id) {
+    final updated = state.notifications.where((n) => n.id != id).toList();
+    state = state.copyWith(notifications: updated);
+  }
+
+  void addExistingNotification(AppNotification n) {
+    state = state.copyWith(notifications: [n, ...state.notifications]);
+  }
+
+  void toggleNotificationRead(String id) {
+    final updated = state.notifications
+        .map((n) => n.id == id ? n.copyWith(isRead: !n.isRead) : n)
+        .toList();
+
+    state = state.copyWith(notifications: updated);
+  }
 }
-
-void clearDashboardFilter() {
-  state = state.copyWith(dashboardFilter: DashboardFilter.defaults);
-}
-
-void removeNotification(String id) {
-  final updated = state.notifications.where((n) => n.id != id).toList();
-  state = state.copyWith(notifications: updated);
-}
-
-void addExistingNotification(AppNotification n) {
-  state = state.copyWith(notifications: [n, ...state.notifications]);
-}
-
-
-void toggleNotificationRead(String id) {
-  final updated = state.notifications
-      .map((n) => n.id == id ? n.copyWith(isRead: !n.isRead) : n)
-      .toList();
-
-  state = state.copyWith(notifications: updated);
-}
-
-
-
-}
-
 
 final appStateProvider =
     NotifierProvider<AppStateNotifier, AppStateData>(AppStateNotifier.new);

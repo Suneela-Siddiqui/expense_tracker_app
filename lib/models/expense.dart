@@ -21,31 +21,35 @@ class Expense {
     required this.amount,
     required this.date,
     required this.category,
-  }) : id = id ?? uuid.v4(); 
+    required this.currency,
+  }) : id = id ?? uuid.v4();
 
   final String id;
   final String title;
   final double amount;
   final DateTime date;
   final Category category;
+  final String currency;
 
   String get formattedDate => formatter.format(date);
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'amount': amount,
-    'date': date.toIso8601String(),
-    'category': category.name,
-  };
+        'id': id,
+        'title': title,
+        'amount': amount,
+        'date': date.toIso8601String(),
+        'category': category.name,
+        'currency': currency,
+      };
 
   factory Expense.fromJson(Map<String, dynamic> json) => Expense(
-    id: json['id'] as String?,
-    title: json['title'],
-    amount: json['amount'],
-    date: DateTime.parse(json['date']),
-    category: Category.values.byName(json['category']),
-  );
+        id: json['id'] as String?,
+        title: json['title'],
+        amount: (json['amount'] as num).toDouble(),
+        date: DateTime.parse(json['date']),
+        category: Category.values.byName(json['category']),
+        currency: (json['currency'] as String?) ?? 'PKR',
+      );
 }
 
 class ExpenseBucket {
@@ -56,8 +60,8 @@ class ExpenseBucket {
 
   ExpenseBucket.forCategory(List<Expense> allExpenses, this.category)
       : expenses = allExpenses
-      .where((expense) => expense.category == category)
-      .toList();
+            .where((expense) => expense.category == category)
+            .toList();
 
   final Category category;
   final List<Expense> expenses;

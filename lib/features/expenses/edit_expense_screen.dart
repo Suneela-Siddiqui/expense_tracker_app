@@ -26,7 +26,9 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
     super.initState();
 
     _title = TextEditingController(text: widget.expense.title);
-    _amount = TextEditingController(text: widget.expense.amount.toStringAsFixed(0));
+    _amount = TextEditingController(
+      text: widget.expense.amount.toStringAsFixed(0),
+    );
 
     _date = widget.expense.date;
     _category = widget.expense.category;
@@ -39,7 +41,18 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
     super.dispose();
   }
 
-  String _catLabel(Category c) => c.name; // food/travel/leisure/work
+  String _catLabel(Category c) {
+    switch (c) {
+      case Category.food:
+        return 'Food';
+      case Category.travel:
+        return 'Travel';
+      case Category.leisure:
+        return 'Leisure';
+      case Category.work:
+        return 'Work';
+    }
+  }
 
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
@@ -48,15 +61,15 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
     );
-    if (picked != null) setState(() => _date = picked);
+    if (picked != null) {
+      setState(() => _date = picked);
+    }
   }
 
   void _save() {
     final notifier = ref.read(appStateProvider.notifier);
 
     final title = _title.text.trim();
-
-    // allow commas in input
     final amountText = _amount.text.trim().replaceAll(',', '');
     final amount = double.tryParse(amountText);
 
@@ -69,16 +82,15 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
 
     final old = widget.expense;
 
-    // ✅ Keep same id, update other fields
     final updated = Expense(
       id: old.id,
       title: title,
       amount: amount,
       date: _date,
       category: _category,
+      currency: old.currency,
     );
 
-    // ✅ Riverpod update (since you likely don’t have updateExpense method)
     notifier.removeExpense(old);
     notifier.addExpense(updated);
 
@@ -89,6 +101,7 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     final cs = t.colorScheme;
+    final currency = widget.expense.currency;
 
     return Scaffold(
       appBar: AppBar(
@@ -109,7 +122,48 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
           TextField(
             controller: _amount,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(hintText: "e.g. 4000"),
+            decoration: InputDecoration(
+              hintText: "e.g. 4000",
+              prefixText: '$currency ',
+            ),
+          ),
+          const SizedBox(height: Ui.s14),
+
+          _FieldLabel("Currency"),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: Ui.s14,
+              vertical: Ui.s14,
+            ),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(Ui.r18),
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: 0.7),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.currency_exchange, color: cs.secondary),
+                const SizedBox(width: Ui.s12),
+                Expanded(
+                  child: Text(
+                    currency,
+                    style: t.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+                Text(
+                  'Locked',
+                  style: t.textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: Ui.s14),
 
@@ -123,7 +177,9 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
                 Expanded(
                   child: Text(
                     "${_date.day}/${_date.month}/${_date.year}",
-                    style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+                    style: t.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
                 Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
@@ -216,11 +272,17 @@ class _PressTileState extends State<_PressTile> {
           curve: Curves.easeOut,
           opacity: _down ? 0.92 : 1.0,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: Ui.s14, vertical: Ui.s14),
+            padding: const EdgeInsets.symmetric(
+              horizontal: Ui.s14,
+              vertical: Ui.s14,
+            ),
             decoration: BoxDecoration(
               color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(Ui.r18),
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.7), width: 1),
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: 0.7),
+                width: 1,
+              ),
             ),
             child: widget.child,
           ),
